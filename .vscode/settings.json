@@ -1,0 +1,6 @@
+{
+  "references.preferredLocation": "peek",
+  "i18n-ally.localesPaths": [],
+  "vitest.commandLine": "npx vitest watch",
+  "testing.automaticallyOpenPeekView": "never"
+}

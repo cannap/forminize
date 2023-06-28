@@ -1,0 +1,29 @@
+<script setup lang="ts">
+const modelValue = defineModel<string | number>({ required: true });
+export interface Props {
+  id: string;
+  label?: string;
+  type?: 'text' | 'number' | 'email' | 'password';
+  error?: string | string[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: 'text'
+});
+</script>
+
+<template>
+  <div>
+    <label v-if="props.label" class="mb-1 block" :for="props.id">{{
+      props.label
+    }}</label>
+    <input
+      class="focus:shadow-outline h-10 w-full rounded-lg border px-3 text-base placeholder-gray-600"
+      :type="type"
+      :id="props.id"
+      v-model="modelValue"
+    />
+  </div>
+</template>
+
+<style lang="scss" scoped></style>
