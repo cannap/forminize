@@ -4,10 +4,10 @@ const { params } = useRoute();
 const formData = reactive({ placeholder: '', label: '' });
 
 async function addFieldToForm() {
-  const result = await $fetch('/api/fields', {
+  const result = await $fetch('/api/inputs', {
     method: 'POST',
     body: {
-      formId: params.id,
+      formId: params.formId,
       ...formData
     }
   });
@@ -15,15 +15,20 @@ async function addFieldToForm() {
 </script>
 
 <template>
-  <form @submit.prevent="addFieldToForm" class="space-y-4">
-    <UiTextField label="Label" v-model="formData.label" id="label" />
-    <UiTextField
+  <UiForm @submit.prevent="addFieldToForm">
+    <UiTitle>
+      Create Field
+
+      <template #subline>Lol</template>
+    </UiTitle>
+    <UiInput label="Label" v-model="formData.label" id="label" />
+    <UiInput
       label="Placeholder"
       v-model="formData.placeholder"
       id="placeholder"
     />
     <UiButton type="submit">Create Field</UiButton>
-  </form>
+  </UiForm>
 </template>
 
 <style lang="scss" scoped></style>

@@ -1,1 +1,0 @@
-ALTER TABLE `fields` ADD `user_id` varchar(255);

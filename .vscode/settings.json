@@ -1,6 +1,15 @@
 {
-  "references.preferredLocation": "peek",
-  "i18n-ally.localesPaths": [],
-  "vitest.commandLine": "npx vitest watch",
-  "testing.automaticallyOpenPeekView": "never"
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  "statusbar_command.commands": [
+    {
+      "text": "Reload Vue TS",
+      "tooltip": "Reload Vue TS",
+      "name": "settings",
+      "priority": -1000,
+      "alignment": "right",
+      "command": "volar.action.restartServer"
+    }
+  ]
 }

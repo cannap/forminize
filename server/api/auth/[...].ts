@@ -3,6 +3,7 @@ import GithubProvider from 'next-auth/providers/github';
 import { PlanetScaleAdapter } from '../../lib/drizzle-adapter';
 import { db, tables } from '../../utils/db';
 import { eq } from 'drizzle-orm';
+
 //https://github.com/matheins/Dorf/blob/main/src/pages/api/auth/%5B...nextauth%5D.ts
 export default NuxtAuthHandler({
   adapter: PlanetScaleAdapter(db),

@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, InferModel, InferModelFromColumns } from 'drizzle-orm';
 import {
   int,
   boolean,
@@ -7,7 +7,8 @@ import {
   primaryKey,
   timestamp,
   text,
-  varchar
+  varchar,
+  json
 } from 'drizzle-orm/mysql-core';
 import { AdapterAccount } from 'next-auth/adapters';
 
@@ -69,39 +70,38 @@ export const forms = mysqlTable('forms', {
   userId: varchar('user_id', { length: 255 }),
   title: varchar('title', { length: 255 }).notNull(),
   description: varchar('description', { length: 512 }),
-  status: mysqlEnum('status', ['draft', 'published', 'archived']).default(
-    'draft'
-  )
+  status: mysqlEnum('status', ['draft', 'published', 'archived'])
+    .default('draft')
+    .notNull()
 });
 
 export const formsRelations = relations(forms, ({ many, one }) => ({
-  fields: many(fields),
+  inputs: many(inputs),
   user: one(users, {
     fields: [forms.userId],
     references: [users.id]
   })
 }));
 
-export const fields = mysqlTable('fields', {
+export const inputs = mysqlTable('inputs', {
   id: varchar('id', { length: 255 }).notNull().primaryKey(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').onUpdateNow(),
   required: boolean('required').default(false).notNull(),
-  neighborFrom: varchar('neightbot_from', { length: 255 }),
   label: varchar('label', { length: 255 }).notNull(),
   placeholder: varchar('placeholder', { length: 255 }),
   formId: text('form_id').notNull(),
-  inputType: mysqlEnum('type', ['text', 'number']).notNull(),
+  type: mysqlEnum('type', ['text', 'number']).notNull(),
   userId: varchar('user_id', { length: 255 })
 });
 
-export const fieldsRelations = relations(fields, ({ one, many }) => ({
+export const inputsRelations = relations(inputs, ({ one, many }) => ({
   form: one(forms, {
-    fields: [fields.formId],
+    fields: [inputs.formId],
     references: [forms.id]
   }),
   user: one(users, {
-    fields: [fields.userId],
+    fields: [inputs.userId],
     references: [users.id]
   })
 }));

@@ -1,9 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>
-    <FieldFormAdd />
-  </div>
+  <form class="space-y-4">
+    <slot></slot>
+  </form>
 </template>
 
 <style lang="scss" scoped></style>

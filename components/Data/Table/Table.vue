@@ -45,7 +45,10 @@ const getColumnContent = (
       </tr>
     </thead>
     <tbody>
-      <template v-for="(item, index) in props.items" :key="index">
+      <template
+        v-for="(item, index) in props.items"
+        :key="index"
+      >
         <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
           <td
             scope="row"

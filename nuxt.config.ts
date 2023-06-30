@@ -3,10 +3,12 @@ export default defineNuxtConfig({
   vite: {
     vue: {
       script: {
-        defineModel: true
+        defineModel: true,
+        propsDestructure: true
       }
     }
   },
+
   css: ['~/assets/css/tailwind.css'],
   postcss: {
     plugins: {
@@ -21,9 +23,13 @@ export default defineNuxtConfig({
       }
     }
   },
-  experimental: { typedPages: false, componentIslands: true },
+  experimental: {
+    watcher: 'parcel'
+  },
+
   modules: [
     '@nuxt/devtools',
+    '@vee-validate/nuxt',
     'nuxt-icon',
     '@vueuse/nuxt',
     'nuxt-vitest',

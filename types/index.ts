@@ -23,6 +23,12 @@ export type TableHeader = {
   label: string;
   value: string;
   width?: number;
-  emptyValue?: string;
+  emptyValue?: string | number;
 };
 export type TableItem = Record<string, any>;
+
+type MapPropertyValue<T, P, R> = {
+  [K in keyof T]: T[K] extends P ? R : T[K];
+};
+
+//type NewUnlockedAccount = MapPropertyValue<UnlockedAccount, string, number>;;

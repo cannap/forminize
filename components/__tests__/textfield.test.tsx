@@ -1,12 +1,12 @@
-import TextField from '../Ui/TextField.vue';
+import Input from '../Ui/Input.vue';
 import { mount } from '@vue/test-utils';
 
 const LOREM = 'lorem';
 const ID = 'myid';
-describe('TextField', () => {
+describe('UiInput', () => {
   it('render', async () => {
     const model = ref(LOREM);
-    const wrapper = mount(<TextField modelValue={model.value} id={ID} />);
+    const wrapper = mount(<Input modelValue={model.value} id={ID} />);
 
     const inputElm = wrapper.find('input');
     expect(inputElm.exists()).toBe(true);
@@ -17,7 +17,7 @@ describe('TextField', () => {
   it('should have a label', async () => {
     const model = ref(LOREM);
     const wrapper = mount(
-      <TextField modelValue={model.value} label={LOREM} id={ID} />
+      <Input modelValue={model.value} label={LOREM} id={ID} />
     );
 
     const label = wrapper.find('label');
@@ -29,7 +29,7 @@ describe('TextField', () => {
     const model = ref(LOREM);
 
     const wrapper = mount(
-      <TextField modelValue={model.value} label={LOREM} id={ID} />
+      <Input modelValue={model.value} label={LOREM} id={ID} />
     );
 
     const label = wrapper.find('label');
@@ -41,7 +41,7 @@ describe('TextField', () => {
   it('emits when v-model changed', async () => {
     const model = ref(LOREM);
     const wrapper = mount(
-      <TextField modelValue={model.value} label={LOREM} id={ID} />,
+      <Input modelValue={model.value} label={LOREM} id={ID} />,
       {
         props: {
           'onUpdate:modelValue': (e: Event) =>

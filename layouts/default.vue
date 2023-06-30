@@ -1,6 +1,4 @@
-<script setup lang="ts">
-const { data, signOut } = useAuth();
-</script>
+<script setup lang="ts"></script>
 <template>
   <div class="flex min-h-screen flex-col space-y-6">
     <CommonHeader />
