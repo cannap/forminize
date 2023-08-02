@@ -1,9 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>
-    <slot></slot>
-  </div>
+  <DashboardTitle>{{ $t('settings') }}</DashboardTitle>
 </template>
 
 <style lang="scss" scoped></style>

@@ -1,9 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>
-    <slot></slot>
-  </div>
+  <PollPreview></PollPreview>
 </template>
 
 <style lang="scss" scoped></style>

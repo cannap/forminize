@@ -1,14 +1,14 @@
 import { drizzle } from 'drizzle-orm/planetscale-serverless';
 import { connect } from '@planetscale/database';
-import { sql, SQL } from 'drizzle-orm';
+import { sql, type SQL } from 'drizzle-orm';
 import { AnyMySqlTable } from 'drizzle-orm/mysql-core';
 import * as _tables from '../db/schema';
 export const tables = _tables;
-
+const { database } = useRuntimeConfig();
 const connection = connect({
-  host: process.env['DATABASE_HOST'],
-  username: process.env['DATABASE_USERNAME'],
-  password: process.env['DATABASE_PASSWORD']
+  host: database.host,
+  username: database.username,
+  password: database.password
 });
 
 export const db = drizzle(connection, {
@@ -24,14 +24,10 @@ export const createPagination = async (options: {
   where?: SQL | undefined;
   currentPage?: number;
 }) => {
-  const _count = () => {
-    return sql<number>`count(*)`;
-  };
-
   const { perPage = 10, table, where, currentPage = 1 } = options;
 
   const result = await db
-    .select({ count: _count() })
+    .select({ count: sql<number>`count(*)` })
     .from(table)
     .where(where)
     .limit(1);

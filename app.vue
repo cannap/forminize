@@ -1,10 +1,9 @@
 <template>
   <NuxtLayout>
     <NuxtPage />
-    <DevOnly>
-      <div class="fixed bottom-0 right-0">
-        {{ useAuth().status }}
-      </div>
-    </DevOnly>
+
+    <UNotifications />
   </NuxtLayout>
 </template>
+
+<script lang="ts" setup></script>

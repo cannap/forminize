@@ -1,15 +1,16 @@
-import { relations, InferModel, InferModelFromColumns } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
 import {
   int,
-  boolean,
-  mysqlEnum,
   mysqlTable,
   primaryKey,
   timestamp,
+  serial,
   text,
+  datetime,
   varchar,
-  json
+  boolean
 } from 'drizzle-orm/mysql-core';
+
 import { AdapterAccount } from 'next-auth/adapters';
 
 export const users = mysqlTable('users', {
@@ -18,7 +19,7 @@ export const users = mysqlTable('users', {
   updatedAt: timestamp('updated_at').onUpdateNow(),
   name: varchar('name', { length: 255 }),
   email: varchar('email', { length: 255 }).notNull(),
-  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  emailVerified: timestamp('emailVerified'),
   image: varchar('image', { length: 255 })
 });
 
@@ -63,45 +64,48 @@ export const verificationTokens = mysqlTable(
   })
 );
 
-export const forms = mysqlTable('forms', {
-  id: varchar('id', { length: 255 }).notNull().primaryKey(),
+export const polls = mysqlTable('polls', {
+  id: serial('id').primaryKey(),
+  question: text('question').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').onUpdateNow(),
-  userId: varchar('user_id', { length: 255 }),
-  title: varchar('title', { length: 255 }).notNull(),
-  description: varchar('description', { length: 512 }),
-  status: mysqlEnum('status', ['draft', 'published', 'archived'])
-    .default('draft')
-    .notNull()
+  isClosed: boolean('is_closed').default(false),
+  startsAt: datetime('starts_at').notNull(),
+  endsAt: datetime('ends_at').notNull(),
+  ownerId: varchar('owner_id', { length: 255 }).notNull(),
+  //Result will only visible to the creator
+  // publicResult: boolean('public_result').default(false),
+  //Everyone can see the result witouth voting
+  captcha: boolean('captcha').default(false),
+  showWithOuthVote: boolean('show_with_out_vote').default(false),
+  information: text('information').default('')
 });
 
-export const formsRelations = relations(forms, ({ many, one }) => ({
-  inputs: many(inputs),
-  user: one(users, {
-    fields: [forms.userId],
-    references: [users.id]
-  })
+export const usersRelations = relations(users, ({ many }) => ({
+  polls: many(polls)
 }));
 
-export const inputs = mysqlTable('inputs', {
-  id: varchar('id', { length: 255 }).notNull().primaryKey(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').onUpdateNow(),
-  required: boolean('required').default(false).notNull(),
-  label: varchar('label', { length: 255 }).notNull(),
-  placeholder: varchar('placeholder', { length: 255 }),
-  formId: text('form_id').notNull(),
-  type: mysqlEnum('type', ['text', 'number']).notNull(),
-  userId: varchar('user_id', { length: 255 })
-});
-
-export const inputsRelations = relations(inputs, ({ one, many }) => ({
-  form: one(forms, {
-    fields: [inputs.formId],
-    references: [forms.id]
+export const pollsRelations = relations(polls, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [polls.ownerId],
+    references: [users.id]
   }),
-  user: one(users, {
-    fields: [inputs.userId],
-    references: [users.id]
+  pollOptions: many(pollOptions)
+}));
+
+export const pollOptions = mysqlTable('poll_options', {
+  id: serial('id').primaryKey(),
+  pollId: varchar('poll_id', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').onUpdateNow(),
+  answer: text('answer').notNull()
+  //TODO:  order: number('order') unique / notNull
+});
+
+export const pollsOptionsRelations = relations(pollOptions, ({ one }) => ({
+  poll: one(polls, {
+    fields: [pollOptions.pollId],
+    references: [polls.id]
   })
 }));
+// A poll has many poll options

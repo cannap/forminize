@@ -2,6 +2,7 @@
   "files.exclude": {
     "**/node_modules": true
   },
+  "tailwindCSS.experimental.configFile": "tailwind.config.ts",
   "statusbar_command.commands": [
     {
       "text": "Reload Vue TS",
@@ -11,5 +12,9 @@
       "alignment": "right",
       "command": "volar.action.restartServer"
     }
-  ]
+  ],
+  "i18n-ally.localesPaths": ["locales"],
+  "i18n-ally.keystyle": "nested",
+
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "ui"]
 }

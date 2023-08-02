@@ -3,19 +3,20 @@ import GithubProvider from 'next-auth/providers/github';
 import { PlanetScaleAdapter } from '../../lib/drizzle-adapter';
 import { db, tables } from '../../utils/db';
 import { eq } from 'drizzle-orm';
-
+const { github } = useRuntimeConfig();
 //https://github.com/matheins/Dorf/blob/main/src/pages/api/auth/%5B...nextauth%5D.ts
 export default NuxtAuthHandler({
   adapter: PlanetScaleAdapter(db),
   pages: {
     // Change the default behavior to use `/login` as the path for the sign-in page
-    signIn: '/login'
+    signIn: '/login',
+    signOut: '/logout'
   },
   providers: [
     // @ts-expect-error You need to use .default here for it to work during SSR. May be fixed via Vite at some point
     GithubProvider.default({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_SECRET
+      clientId: github.clientId,
+      clientSecret: github.secret
     })
   ],
   session: {
@@ -24,10 +25,10 @@ export default NuxtAuthHandler({
   callbacks: {
     async session({ token, session }) {
       if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
+        (session as any).user.id = token.id;
+        (session as any).user.name = token.name;
+        (session as any).user.email = token.email;
+        (session as any).user.image = token.picture;
       }
 
       return Promise.resolve(session);
