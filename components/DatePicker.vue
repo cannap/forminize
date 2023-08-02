@@ -37,11 +37,6 @@ const { errors, setValue } = useField(() => props.name, undefined, {
 });
 
 const { locale } = useI18n();
-
-const setDate = (date) => {
-  console.log(date);
-  setValue(date);
-};
 </script>
 
 <template>
@@ -51,7 +46,6 @@ const setDate = (date) => {
       :name="name"
       :close-on-auto-apply="false"
       teleport-center
-      @update:model-value="setDate"
       v-bind="props.datepicker"
       ref="picker"
       :clearable="false"
