@@ -6,7 +6,7 @@ const { t } = useI18n();
 <template>
   <div
     v-if="data?.user"
-    class="sticky top-0 w-full border-b bg-gray-100 py-4 dark:border-gray-800 dark:bg-gray-900"
+    class="sticky top-0 z-50 w-full border-b bg-gray-100 py-4 dark:border-gray-800 dark:bg-gray-900"
   >
     <UContainer class="flex items-center justify-between">
       <Logo class="text-blue-600" />
