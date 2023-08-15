@@ -3,6 +3,7 @@ import { connect } from '@planetscale/database';
 import { sql, type SQL } from 'drizzle-orm';
 import { AnyMySqlTable } from 'drizzle-orm/mysql-core';
 import * as _tables from '../db/schema';
+import { PollOptionsSchema } from '../../shared/validations/poll';
 export const tables = _tables;
 const { database } = useRuntimeConfig();
 const connection = connect({
@@ -21,7 +22,7 @@ export const createPagination = async (options: {
   offest?: number;
   limit?: number;
   perPage?: number;
-  where?: SQL | undefined;
+  where?: SQL;
   currentPage?: number;
 }) => {
   const { perPage = 10, table, where, currentPage = 1 } = options;
@@ -42,3 +43,5 @@ export const createPagination = async (options: {
     currentPage: currentPage
   };
 };
+
+export const updatePollOptionsOrder = (pollOptions: PollOptionsSchema) => {};

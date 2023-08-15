@@ -13,6 +13,26 @@ function createBadRequest(error: any) {
   });
 }
 
+export async function useValidateParams<TSchema extends BaseSchema>(
+  event: H3Event,
+  schema: TSchema,
+  info?: ParseInfo
+) {
+  try {
+    const params = getRouterParams(event);
+
+    return parse(schema, params, info);
+  } catch (error) {
+    const errors: Record<string, string> = {};
+    if (error instanceof ValiError) {
+      processIssues(error.issues, errors);
+      console.log(errors);
+    }
+
+    throw createBadRequest(error);
+  }
+}
+
 export async function useValidateBody<TSchema extends BaseSchema>(
   event: H3Event,
   schema: TSchema,
@@ -23,7 +43,6 @@ export async function useValidateBody<TSchema extends BaseSchema>(
     // console.log('parse');
     return parse(schema, body, info);
   } catch (error) {
-    let message = 'unknown error';
     const errors: Record<string, string> = {};
     if (error instanceof ValiError) {
       processIssues(error.issues, errors);

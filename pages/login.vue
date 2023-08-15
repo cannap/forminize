@@ -3,7 +3,7 @@ definePageMeta({
   layout: 'auth',
   middleware: [
     function (to, from) {
-      return;
+      // return;
       //When loggedin redirect to dashboard
       const { status } = useAuth();
       if (status.value === 'authenticated') {

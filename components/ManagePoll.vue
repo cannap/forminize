@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { PollSchema } from '@/shared/validations/poll';
-const modelValue = defineModel({ type: Boolean, default: false });
-import type { DatePickerInstance } from '@vuepic/vue-datepicker';
-import { parse } from 'valibot';
+import { PollSchemaInput } from '@/shared/validations/poll';
 const { t } = useI18n();
 import { createPollSchema } from '@/shared/validations/poll';
 import { toTypedSchema } from '@vee-validate/valibot';
-
-//const { history, commit, undo, redo } = useManualRefHistory(pollOptions);
-const newOption = ref<string>('');
-const newOptionError = ref('');
-
-const poll = defineModel<PollSchema>('poll', {
+import PollOptions from './PollOptions.vue';
+const toast = useToast();
+const poll = defineModel<PollSchemaInput>('poll', {
   default: {
     question: '',
     pollOptions: [],
@@ -22,57 +16,58 @@ const poll = defineModel<PollSchema>('poll', {
     endsAt: ''
   }
 });
-
-const { errors, validate } = useForm({
+const emits = defineEmits(['save', 'cancel', 'updated']);
+const optionsRef = ref<InstanceType<typeof PollOptions> | null>(null);
+const { errors, validate, values, meta, errorBag, setValues } = useForm({
   validationSchema: toTypedSchema(createPollSchema),
   initialValues: { ...poll.value }
 });
 
-const emits = defineEmits(['save', 'cancel']);
-
-/** Just For demo  */
-
-const updateOption = (event: string, i: number) => {
-  poll.value.pollOptions[i].answer = event;
-};
-
-const removeOption = (i) => {
-  //pollOptions.value = pollOptions.value.filter((answer) => i !== answer);
-  poll.value.pollOptions.splice(i, 1);
-  //  commit();
-};
-const addOption = () => {
-  // console.log(newOption.value.length);
-  if (newOption.value.length <= 0) {
-    newOptionError.value = t('required');
-    return;
-  }
-
-  newOptionError.value = '';
-  poll.value.pollOptions.push({ answer: newOption.value, id: uid() });
-  newOption.value = '';
-};
-
-const lockTooltip = computed(() => {
-  return poll.value.isClosed ? t('poll_is_locked') : t('poll_is_unlocked');
-});
-
-const lockIcon = computed(() => {
-  return poll.value.isClosed
-    ? 'i-heroicons-lock-closed'
-    : 'i-heroicons-lock-open';
-});
+//TODO: those fields are dynamically renderer
+const { value: isClosed } = useField<boolean>('isClosed');
+const { value: multiple } = useField<boolean>('multiple');
 
 const save = async () => {
-  const parsed = parse(createPollSchema, poll.value);
-  console.log(parsed);
-
   const { valid, errors, values } = await validate();
-  console.log(valid, values);
+  if (!valid) return;
+  if (!poll.value.id) {
+    try {
+      const response = await $fetch('/api/polls', {
+        method: 'POST',
+        body: values
+      });
+
+      emits('save', response);
+      //  data.value?.polls.push(response);
+    } catch (error) {}
+  } else {
+    try {
+      const response = await $fetch<PollSchemaInput>(
+        `/api/polls/${poll.value.id}`,
+        {
+          method: 'PATCH',
+          body: values
+        }
+      );
+      emits('updated', response);
+      // poll.value = response;
+      optionsRef?.value?.updatePollOptions(response.pollOptions);
+      toast.add({ color: 'green', title: t('poll_updated') });
+    } catch (error) {
+      console.log(error);
+      toast.add({ color: 'red', title: t('create_poll_failed') });
+    }
+  }
+};
+
+/*
+const save = async () => {
+  const { valid, errors, values } = await validate();
+
   if (valid) {
     emits('save', values);
   }
-};
+};*/
 </script>
 
 <template>
@@ -80,25 +75,31 @@ const save = async () => {
     <template #header>
       <div class="flex items-center justify-between">
         <div class="text-md flex items-center gap-3">
-          <UTooltip :popper="{ placement: 'top' }" :text="lockTooltip">
-            <UIcon class="text-lg" :name="lockIcon" />
-          </UTooltip>
+          <LockIcon :state="isClosed" size-class="text-lg" />
           <h3 class="text-lg font-bold">
             {{ poll.id ? $t('edit_poll') : $t('create_poll') }}
           </h3>
         </div>
 
         <UPopover>
-          <UButton icon="i-heroicons-wrench-screwdriver" variant="ghost">{{
-            $t('settings')
-          }}</UButton>
+          <UButton
+            icon="i-heroicons-wrench-screwdriver"
+            variant="soft"
+            color="blue"
+            >{{ $t('settings') }}</UButton
+          >
 
           <template #panel>
-            <div class="p-4">
+            <div class="flex flex-col gap-2 p-3">
               <UCheckbox
-                v-model="poll.isClosed"
-                name="lock"
+                name="iclosed"
+                v-model="isClosed"
                 :label="$t('lock_poll')"
+              />
+              <UCheckbox
+                name="multiple"
+                v-model="multiple"
+                :label="$t('multiple')"
               />
             </div>
           </template>
@@ -107,95 +108,30 @@ const save = async () => {
     </template>
     <form @submit.prevent="save" class="space-y-4">
       <fieldset class="space-y-4">
-        <ValidationInput
-          v-model="poll.question"
-          name="question"
-          :label="$t('question')"
-        />
+        <ValidationInput name="question" :label="$t('question')" />
 
         <div class="flex gap-4">
-          <DatePicker
-            v-model="poll.startsAt"
-            :label="$t('starts_at')"
-            name="starts_at"
-          ></DatePicker>
-
-          <DatePicker
-            v-model="poll.endsAt"
-            :label="$t('ends_at')"
-            name="ends_at"
-          ></DatePicker>
-
-          <!--   <UFormGroup
-            @click="startsAtPicker?.openMenu()"
-            name="starts_at"
-            :label="$t('starts_at')"
-          >
-            <DatePicker
-              v-bind="startsAt"
-              @e-ref="(el) => (startsAtPicker = el)"
-              name="starts_at"
-              v-model="poll.startsAt"
-            />
-            >
-          </UFormGroup>
-        -->
-          <!--  <UFormGroup @click="endsAtPicker?.openMenu()" :label="$t('ends_at')">
-            <DatePicker
-              @e-ref="(el) => (endsAtPicker = el)"
-              name="ends_at"
-              v-model="poll.endsAt"
-            />
-          </UFormGroup> -->
+          <DatePicker :label="$t('starts_at')" name="startsAt" />
+          <DatePicker :label="$t('ends_at')" name="endsAt" />
         </div>
       </fieldset>
       <fieldset>
+        <UAlert
+          class="mb-4"
+          v-if="errors.pollOptions"
+          color="orange"
+          icon="i-heroicons-shield-exclamation"
+          variant="outline"
+          :title="$t('min_two_options')"
+          >{{ errors.pollOptions }}</UAlert
+        >
         <legend class="mb-4 font-bold">
           {{ $t('options') }}
         </legend>
-        <div
-          class="mb-4 flex gap-2"
-          :key="i"
-          v-for="(option, i) in poll.pollOptions"
-        >
-          <UButton
-            color="gray"
-            icon="i-heroicons-bars-2"
-            variant="ghost"
-          ></UButton>
-          <UInput
-            :ui="{ wrapper: 'flex-auto' }"
-            @update:model-value="updateOption($event, i)"
-            :model-value="option.answer"
-          />
-          <UButton
-            @click="removeOption(i)"
-            class="flex"
-            icon="i-heroicons-trash"
-            size="sm"
-            color="red"
-            variant="outline"
-          />
-        </div>
+
+        <PollOptions ref="optionsRef" name="pollOptions" />
       </fieldset>
     </form>
-    <UFormGroup :error="newOptionError" :label="$t('option')" name="add_new">
-      <div class="flex gap-2">
-        <UInput
-          :ui="{ wrapper: 'flex-auto' }"
-          @keyup.enter="addOption"
-          v-model="newOption"
-        >
-        </UInput>
-        <UButton
-          icon="i-heroicons-check"
-          size="sm"
-          @click="addOption"
-          color="green"
-          variant="outline"
-        />
-      </div>
-    </UFormGroup>
 
     <template #footer>
       <div class="flex justify-between">

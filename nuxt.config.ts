@@ -16,7 +16,6 @@ export default defineNuxtConfig({
       secret: ''
     }
   },
-
   i18n: {
     lazy: true,
     langDir: 'locales',

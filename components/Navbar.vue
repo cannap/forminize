@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { data } = useAuth();
-const { t } = useI18n();
 </script>
 
 <template>
@@ -11,8 +10,8 @@ const { t } = useI18n();
     <UContainer class="flex items-center justify-between">
       <Logo class="text-blue-600" />
       <div class="flex gap-4">
-        <UserDropdown></UserDropdown>
-        <UTooltip :text="t('switch_color')"> <ColorSwitcher /></UTooltip>
+        <UserDropdown />
+        <UTooltip :text="$t('switch_color')"> <ColorSwitcher /></UTooltip>
       </div>
     </UContainer>
   </div>

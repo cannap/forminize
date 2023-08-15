@@ -5,11 +5,8 @@ import VueDatePicker, {
 } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { PropType } from 'vue';
-const modelValue = defineModel();
+//const modelValue = defineModel();
 const colorMode = useColorMode();
-
-//TODO: Props
-//const props = defineProps(['label', 'name']);
 
 const inputClass =
   'form-input relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 rounded-md placeholder-gray-400 dark:placeholder-gray-500 text-sm px-2.5 py-1.5 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 ps-9';
@@ -31,21 +28,21 @@ const props = defineProps({
     type: String
   }
 });
-const { errors, setValue } = useField(() => props.name, undefined, {
-  syncVModel: true,
+const { errorMessage, value } = useField<any>(() => props.name, undefined, {
+  // syncVModel: true
   validateOnValueUpdate: true
 });
-
+//TODO´: is native or something detect it via timezone...
 const { locale } = useI18n();
 </script>
 
 <template>
-  <UFormGroup :label="label" :error="errors[0]">
+  <UFormGroup @click="picker?.openMenu()" :label="label" :error="errorMessage">
     <VueDatePicker
       auto-apply
       :name="name"
       :close-on-auto-apply="false"
-      teleport-center
+      teleport="body"
       v-bind="props.datepicker"
       ref="picker"
       :clearable="false"
@@ -53,7 +50,7 @@ const { locale } = useI18n();
       :format="$t('date_format')"
       :dark="isDark"
       :locale="locale"
-      v-model="modelValue"
+      v-model="value"
     ></VueDatePicker>
   </UFormGroup>
 </template>

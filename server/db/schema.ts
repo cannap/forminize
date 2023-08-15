@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   int,
   mysqlTable,
@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/mysql-core';
 
 import { AdapterAccount } from 'next-auth/adapters';
+import { datetimeUtc } from './customTypes';
 
 export const users = mysqlTable('users', {
   id: varchar('id', { length: 255 }).notNull().primaryKey(),
@@ -67,12 +68,13 @@ export const verificationTokens = mysqlTable(
 export const polls = mysqlTable('polls', {
   id: serial('id').primaryKey(),
   question: text('question').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
   updatedAt: timestamp('updated_at').onUpdateNow(),
   isClosed: boolean('is_closed').default(false),
-  startsAt: datetime('starts_at').notNull(),
-  endsAt: datetime('ends_at').notNull(),
+  startsAt: datetimeUtc('starts_at', 3).notNull(),
+  endsAt: datetimeUtc('ends_at', 3).notNull(),
   ownerId: varchar('owner_id', { length: 255 }).notNull(),
+  multiple: boolean('multiple').default(false),
   //Result will only visible to the creator
   // publicResult: boolean('public_result').default(false),
   //Everyone can see the result witouth voting
@@ -94,12 +96,14 @@ export const pollsRelations = relations(polls, ({ one, many }) => ({
 }));
 
 export const pollOptions = mysqlTable('poll_options', {
-  id: serial('id').primaryKey(),
-  pollId: varchar('poll_id', { length: 255 }).notNull(),
+  //id: Since we use orders we need to use a custom id from the client which seems easier to reorder on update
+  //Todo: maybe we can also create a new api endpoint
+  id: varchar('id', { length: 21 }).primaryKey().notNull(),
+  pollId: int('poll_id').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').onUpdateNow(),
-  answer: text('answer').notNull()
-  //TODO:  order: number('order') unique / notNull
+  answer: text('answer').notNull(),
+  order: int('order').notNull()
 });
 
 export const pollsOptionsRelations = relations(pollOptions, ({ one }) => ({

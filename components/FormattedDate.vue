@@ -5,7 +5,12 @@ const props = defineProps(['date']);
 const { locale, t } = useI18n();
 
 const formattedDate = computed(() => {
-  return format(new Date(props.date), t('date_format'));
+  // return format(new Date(), t('date_format'));
+  const formatter = Intl.DateTimeFormat(locale.value, {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
+  return formatter.format(new Date(props.date));
 });
 </script>
 
